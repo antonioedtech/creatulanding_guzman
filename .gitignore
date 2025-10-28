@@ -1,0 +1,26 @@
+# Dependencias de paquetes
+/node_modules
+/npm-debug.log
+/yarn-error.log
+/package-lock.json
+
+# Build files (Archivos de compilación y producción)
+# Excluye la carpeta donde se genera el código final para producción
+/dist
+/build
+
+# Directorios específicos del sistema operativo o IDEs
+.DS_Store          # Mac
+Thumbs.db          # Windows
+.vscode/           # Visual Studio Code (configuración local)
+.idea/             # JetBrains IDEs (WebStorm, IntelliJ)
+
+# Archivos de caché de React / Vite / webpack
+.cache
+.env.local
+.env.development.local
+.env.production.local
+
+# Archivos de logs y temporales
+/log
+*.log
