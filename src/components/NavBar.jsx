@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react'; 
+import { Link, NavLink } from 'react-router-dom';
 import CartWidget from './CartWidget'; // Importación la carpeta 'components'
 
 /**
@@ -6,6 +7,16 @@ import CartWidget from './CartWidget'; // Importación la carpeta 'components'
  * Contiene el logo, los enlaces de navegación y el CartWidget.
  */
 const NavBar = () => {
+    const [cartItemCount, setCartItemCount] = useState(4); 
+    
+    // Categorías para el menú:
+    const categories = [
+        { id: 1, name: "Todos", route: "/" },
+        { id: 2, name: "Websites", route: "/category/websites" },
+        { id: 3, name: "Marketing", route: "/category/marketing" },
+        { id: 4, name: "Branding", route: "/category/branding" },
+    ];
+
     return (
         // Utilizamos la etiqueta <nav> para la barra de navegación.
         <nav className="nav-bar">
@@ -16,15 +27,22 @@ const NavBar = () => {
 
             {/* Enlaces de navegación */}
             <ul className="nav-links">
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#servicios">Servicios</a></li>
-                <li><a href="#portafolio">Portafolio</a></li>
-                <li><a href="#contacto">Contacto</a></li>
+                {categories.map(cat => (
+                    <li key={cat.id}>
+                        {/* NavLink se usa para añadir un estilo 'activo' automáticamente si la ruta coincide */}
+                        <NavLink 
+                            to={cat.route} 
+                            className={({ isActive }) => isActive && cat.route !== '/' ? 'active-link' : ''}
+                        >
+                            {cat.name}
+                        </NavLink>
+                    </li>
+                ))}
             </ul>
 
-            {/* 🎯 CartWidget renderizado como componente hijo de NavBar. */}
+            {/* CartWidget renderizado como componente hijo de NavBar. */}
             <div className="nav-widget">
-                <CartWidget />
+                <CartWidget itemCount={cartItemCount}/>
             </div>
         </nav>
     );
