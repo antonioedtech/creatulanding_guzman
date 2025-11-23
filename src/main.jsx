@@ -1,11 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.jsx'; // Importa componente App
-import './index.css'; // Importa estilos globales
+import App from './App';
+import './index.css';
 
-// Punto de entrada de la aplicación React
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App /> {/* Renderiza el componente App */}
-  </React.StrictMode>,
+// 1. Obtenemos el elemento raíz del DOM
+const rootElement = document.getElementById('root');
+
+// 2. Creamos el "root" de React y renderizamos la aplicación principal
+ReactDOM.createRoot(rootElement).render(
+    <App />
 );
