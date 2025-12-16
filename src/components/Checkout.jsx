@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 // Importaciones de Firestore
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, writeBatch, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { CartContext } from '../context/CartContext';
 
@@ -13,6 +13,7 @@ const Checkout = () => {
     // Estado para el formulario del comprador
     const [buyer, setBuyer] = useState({ name: '', phone: '', email: '' });
     const [orderId, setOrderId] = useState(null); // Para mostrar el ID de orden
+    const [orderTotal, setOrderTotal] = useState(0); // 1. Estado para guardar el total de la orden
 
     // Manejar cambios en el formulario
     const handleChange = (e) => {
@@ -23,6 +24,9 @@ const Checkout = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        // Recalcular el total en el momento de la sumisión para asegurar consistencia
+        const finalOrderTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
         // Construir la Orden
         const newOrder = {
             buyer, // { name, phone, email }
@@ -32,21 +36,54 @@ const Checkout = () => {
                 price: item.price,
                 quantity: item.quantity,
             })),
-            total: total, // Tomado del CartContext
+            total: finalOrderTotal, // Usar el total recalculado
             date: serverTimestamp(), // Fecha de Firestore
         };
 
         try {
-            // Guardar la orden en Firestore (colección 'orders')
-            const docRef = await addDoc(collection(db, 'orders'), newOrder);
+            // Iniciar un Lote de Escritura (Batch)
+            const batch = writeBatch(db);
+            const ordersRef = collection(db, 'orders');
+
+            // Array para verificar el stock
+            const outOfStock = [];
+
+            // Por cada item en el carrito, verificar y actualizar stock
+            for (const item of cart) {
+                const productRef = doc(db, 'products', item.id);
+                const productDoc = await getDoc(productRef);
+
+                if (productDoc.data().stock >= item.quantity) {
+                    // Si hay stock, restar la cantidad y añadir la operación al batch
+                    batch.update(productRef, {
+                        stock: productDoc.data().stock - item.quantity
+                    });
+                } else {
+                    // Si no hay stock, añadir al array de fuera de stock
+                    outOfStock.push(item);
+                }
+            }
+
+            if (outOfStock.length > 0) {
+                // Si hay productos sin stock, no continuar y avisar al usuario
+                alert(`Lo sentimos, no hay stock suficiente para: ${outOfStock.map(i => i.name).join(', ')}`);
+                return; // Detener la ejecución
+            }
+
+            // Añadir la creación de la nueva orden al batch
+            const orderDocRef = doc(ordersRef); // Crea una referencia con un ID automático
+            batch.set(orderDocRef, newOrder);
             
-            // Éxito: Guardar el ID de orden, vaciar carrito y navegar
-            setOrderId(docRef.id);
+            // Ejecutar todas las operaciones del batch
+            await batch.commit();
+
+            // Éxito: Guardar el ID de orden y vaciar carrito
+            setOrderId(orderDocRef.id);
+            setOrderTotal(finalOrderTotal); // 4. Guardar el total en el estado local
             clearCart(); // Vaciar el carrito después de la compra
-            
         } catch (error) {
             console.error("Error al generar la orden: ", error);
-            // Manejar errores de stock o conexión si es necesario
+            alert("Hubo un error al procesar tu orden. Por favor, inténtalo de nuevo.");
         }
     };
 
@@ -58,6 +95,9 @@ const Checkout = () => {
                 <p>Tu orden ha sido registrada exitosamente.</p>
                 <p className="order-id">
                     **ID de tu Orden:** **{orderId}**
+                </p>
+                <p className="order-total">
+                    **Monto Total:** **${orderTotal}**
                 </p>
                 <button onClick={() => navigate('/')}>Volver al Catálogo</button>
             </div>
@@ -77,37 +117,27 @@ const Checkout = () => {
     }
 
     return (
-        <div className="checkout-container">
-            <h2>Finalizar Compra</h2>
-            <p>Resumen del Pedido: {cart.length} productos | Total: ${total}</p>
+        <div className="checkout-page">
+            {/* Sección 1: Resumen de la Compra */}
+            <div className="checkout-summary">
+                <h2 className="section-title">Resumen de tu Compra</h2>
+                {cart.map(item => (
+                    <div key={item.id} className="summary-item">
+                        <span>{item.name} (x{item.quantity})</span>
+                        <span>${item.price * item.quantity}</span>
+                    </div>
+                ))}
+                <p className="summary-total">Total a Pagar: ${total}</p>
+            </div>
             
-            <form onSubmit={handleSubmit} className="contact-form">
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Nombre Completo"
-                    onChange={handleChange}
-                    value={buyer.name}
-                    required
-                />
-                <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Teléfono"
-                    onChange={handleChange}
-                    value={buyer.phone}
-                    required
-                />
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Correo Electrónico"
-                    onChange={handleChange}
-                    value={buyer.email}
-                    required
-                />
+            {/* Sección 2: Formulario de Contacto */}
+            <form onSubmit={handleSubmit} className="checkout-form">
+                <h2 className="section-title">Datos de Contacto</h2>
+                <input className="form-input" type="text" name="name" placeholder="Nombre Completo" onChange={handleChange} value={buyer.name} required />
+                <input className="form-input" type="tel" name="phone" placeholder="Teléfono" onChange={handleChange} value={buyer.phone} required />
+                <input className="form-input" type="email" name="email" placeholder="Correo Electrónico" onChange={handleChange} value={buyer.email} required />
                 
-                <button type="submit" disabled={!buyer.name || !buyer.email}>
+                <button type="submit" className="submit-order-btn" disabled={!buyer.name || !buyer.email}>
                     Generar Orden de Compra
                 </button>
             </form>

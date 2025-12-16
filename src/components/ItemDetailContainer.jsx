@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom'; 
 // Importaciones de Firestore para un solo documento
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config'; // Instancia de la base de datos
+import { CartContext } from '../context/CartContext'; // 1. Importar el contexto
 
 // Componente Presentacional (estructura mínima para detalle)
 const ItemDetail = ({ item }) => {
+    const { addItem } = useContext(CartContext); // 2. Usar el contexto
+
     if (!item) return null;
 
     const formattedPrice = new Intl.NumberFormat('es-AR', {
@@ -13,15 +16,21 @@ const ItemDetail = ({ item }) => {
         currency: 'USD',
     }).format(item.price);
 
+    // 3. Función para manejar la adición al carrito (ej: 1 unidad)
+    const handleAddToCart = () => {
+        if (item.stock > 0) {
+            addItem(item, 1); // Añade 1 unidad del item
+            alert(`Agregaste 1 unidad de "${item.name}" al carrito.`);
+        }
+    };
+
     return (
         <div className="item-detail-view">
             <h2>{item.name}</h2>
             <p className="detail-description">{item.description}</p>
             <p className="detail-price">{formattedPrice}</p>
             <p className="detail-stock">Stock disponible: {item.stock}</p>
-            
-            {/* Se incluye el componente contador (ItemCount) en la siguiente entrega */}
-            <button className="add-to-cart-button">Añadir al Carrito</button> 
+            <button onClick={handleAddToCart} className="add-to-cart-button" disabled={item.stock === 0}>Añadir al Carrito</button> 
         </div>
     );
 };
