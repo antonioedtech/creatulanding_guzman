@@ -6,6 +6,7 @@ import ItemDetailContainer from './components/ItemDetailContainer';
 import CartView from './components/CartView'; // 1. Importamos la vista del carrito
 import { CartProvider } from './context/CartContext';
 import './App.css';
+import Checkout from './components/Checkout';
 
 const NotFound = () => <div style={{ textAlign: 'center', padding: '50px' }}>
     <h1>404 | Página No Encontrada</h1>
@@ -32,8 +33,11 @@ function App() {
 
                         {/* 4. Vista del Carrito */}
                         <Route path="/cart" element={<CartView />} />
-                        
-                        {/* 5. Ruta 404 para errores de navegación */}
+
+                        {/* 5. Ruta de Checkout */}
+                        <Route path="/checkout" element={<Checkout />} />
+
+                        {/* 6. Ruta 404 para errores de navegación */}
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </div>

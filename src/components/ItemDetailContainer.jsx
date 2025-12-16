@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getProductById } from '../data/products';
-import { CartContext } from '../context/CartContext';
-import ItemCount from './ItemCount';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'; 
+// Importaciones de Firestore para un solo documento
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/config'; // Instancia de la base de datos
 
-const ItemDetail = ({ item, onAddToCart }) => {
+// Componente Presentacional (estructura mínima para detalle)
+const ItemDetail = ({ item }) => {
     if (!item) return null;
-
-    const [quantityAdded, setQuantityAdded] = useState(0);
 
     const formattedPrice = new Intl.NumberFormat('es-AR', {
         style: 'currency',
@@ -16,46 +15,42 @@ const ItemDetail = ({ item, onAddToCart }) => {
 
     return (
         <div className="item-detail-view">
-            <div className="item-detail-content">
-                <h2>{item.name}</h2>
-                <p className="detail-description">{item.description}</p>
-                <p className="detail-price">{formattedPrice}</p>
-                <p className="detail-stock">Stock disponible: {item.stock}</p>
-                
-                {quantityAdded > 0 ? (
-                    <Link to="/cart" className="go-to-cart-button">Terminar Compra</Link>
-                ) : (
-                    <ItemCount 
-                        initial={1} 
-                        stock={item.stock} 
-                        onAdd={(quantity) => {
-                            onAddToCart(quantity);
-                            setQuantityAdded(quantity);
-                        }} 
-                    />
-                )}
-            </div>
+            <h2>{item.name}</h2>
+            <p className="detail-description">{item.description}</p>
+            <p className="detail-price">{formattedPrice}</p>
+            <p className="detail-stock">Stock disponible: {item.stock}</p>
+            
+            {/* Se incluye el componente contador (ItemCount) en la siguiente entrega */}
+            <button className="add-to-cart-button">Añadir al Carrito</button> 
         </div>
     );
 };
+
 
 const ItemDetailContainer = () => {
     const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
     const { itemId } = useParams(); 
-    const { addItem } = useContext(CartContext);
 
     useEffect(() => {
         setLoading(true);
-
-        const numericItemId = parseInt(itemId); 
         
-        getProductById(numericItemId)
-            .then(data => {
-                setItem(data);
+        // Crea referencia a un documento específico en la colección 'products'
+        const itemRef = doc(db, 'products', itemId); 
+        
+        // Ejecuta la consulta asíncrona para obtener un solo documento
+        getDoc(itemRef)
+            .then(docSnapshot => {
+                if (docSnapshot.exists()) {
+                    // Si el documento existe, lo mapeamos
+                    setItem({ id: docSnapshot.id, ...docSnapshot.data() });
+                } else {
+                    // El documento no existe (ej: ID mal escrito)
+                    setItem(null);
+                }
             })
             .catch(error => {
-                console.error("Error al cargar detalle:", error);
+                console.error("Error al cargar detalle desde Firestore:", error);
                 setItem(null);
             })
             .finally(() => {
@@ -64,18 +59,14 @@ const ItemDetailContainer = () => {
 
     }, [itemId]); 
 
-    const handleOnAdd = (quantity) => {
-        addItem(item, quantity);
-    };
-
     return (
         <main className="item-detail-container">
             {loading ? (
                 <p className="placeholder-text">Cargando detalle del producto...</p>
             ) : item ? (
-                <ItemDetail item={item} onAddToCart={handleOnAdd} />
+                <ItemDetail item={item} />
             ) : (
-                <p className="placeholder-text">Producto no encontrado.</p>
+                <p className="placeholder-text">Producto no encontrado o ID inválido.</p>
             )}
         </main>
     );
