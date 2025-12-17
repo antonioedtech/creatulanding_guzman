@@ -1,14 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
+console.log("Mis variables:", import.meta.env.VITE_FIREBASE_API_KEY);
 // Credenciales de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBim2OKG3z6nGLuOkOf0IsfYGzMHMlePKM",
-  authDomain: "react-ecommerce-frontend-app.firebaseapp.com",
-  projectId: "react-ecommerce-frontend-app",
-  storageBucket: "react-ecommerce-frontend-app.firebasestorage.app",
-  messagingSenderId: "18340684656",
-  appId: "1:18340684656:web:b802722eb957d907a2a5b5"
+apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Inicializa la aplicación de Firebase

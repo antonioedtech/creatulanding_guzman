@@ -7,7 +7,7 @@ import { CartContext } from '../context/CartContext';
 
 const Checkout = () => {
     // Hooks y Context
-    const { cart, total, clearCart } = useContext(CartContext);
+    const { cart, total: cartTotal, clearCart } = useContext(CartContext); // Renombramos 'total' a 'cartTotal'
     const navigate = useNavigate();
     
     // Estado para el formulario del comprador
@@ -90,16 +90,18 @@ const Checkout = () => {
     // Mostrar mensaje de éxito y el ID de orden
     if (orderId) {
         return (
-            <div className="checkout-success">
-                <h2>¡Gracias por tu compra, {buyer.name}!</h2>
-                <p>Tu orden ha sido registrada exitosamente.</p>
-                <p className="order-id">
-                    **ID de tu Orden:** **{orderId}**
-                </p>
-                <p className="order-total">
-                    **Monto Total:** **${orderTotal}**
-                </p>
-                <button onClick={() => navigate('/')}>Volver al Catálogo</button>
+            <div className="checkout-page">
+                <div className="checkout-success">
+                    <h2 className="section-title">¡Gracias por tu compra, {buyer.name}!</h2>
+                    <p>Tu orden ha sido registrada exitosamente. A continuación, los detalles:</p>
+                    
+                    <div className="order-details">
+                        <p><strong>ID de tu Orden:</strong> {orderId}</p>
+                        <p><strong>Monto Total:</strong> ${orderTotal}</p>
+                    </div>
+
+                    <button className="submit-order-btn" onClick={() => navigate('/')}>Volver al Catálogo</button>
+                </div>
             </div>
         );
     }
@@ -127,7 +129,7 @@ const Checkout = () => {
                         <span>${item.price * item.quantity}</span>
                     </div>
                 ))}
-                <p className="summary-total">Total a Pagar: ${total}</p>
+                <p className="summary-total">Total a Pagar: ${cartTotal}</p>
             </div>
             
             {/* Sección 2: Formulario de Contacto */}

@@ -27,8 +27,38 @@ A lo largo del proyecto se han implementado diversas funcionalidades clave para 
 | **Vite** | Herramienta de *build* y servidor de desarrollo rápido. |
 | **React Router DOM** | Gestión de navegación y rutas dinámicas. |
 | **Firebase (Firestore)** | Base de datos NoSQL para la persistencia de productos y órdenes de compra. |
-| **CSS Modules (o App.css)** | Estilizado modular de los componentes. |
+| **CSS (App.css)** | Estilizado global y por componentes. |
+| **Variables de Entorno (.env)** | Para la gestión segura de las credenciales de Firebase. |
 | **JavaScript (ES6+)** | Lógica de negocio y manejo de Promises. |
+
+---
+
+## 🚀 Instalación y Configuración
+
+Sigue estos pasos para levantar el proyecto en tu entorno local:
+
+1.  **Clonar el Repositorio**
+    ```bash
+    git clone https://github.com/antonioedtech/coderhouse-react-js.git
+    cd coderhouse-react-js
+    ```
+
+2.  **Instalar Dependencias**
+    ```bash
+    npm install
+    ```
+
+3.  **Configurar Variables de Entorno**
+    Este proyecto utiliza variables de entorno para gestionar las credenciales de Firebase.
+    *   Crea una copia del archivo `.env.example` en la raíz del proyecto.
+    *   Renombra la copia a `.env`.
+    *   Abre el nuevo archivo `.env` y reemplaza los valores de ejemplo con tus propias credenciales de Firebase.
+
+4.  **Ejecutar el Proyecto**
+    Una vez configurado, puedes iniciar el servidor de desarrollo:
+    ```bash
+    npm run dev
+    ```
 
 ---
 

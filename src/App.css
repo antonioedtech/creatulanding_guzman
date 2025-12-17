@@ -301,7 +301,7 @@
     font-size: 1.1rem;
     font-weight: bold;
     color: white;
-    background-color: #28a745; /* Verde para acción positiva */
+    background-color: #28a745; 
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -316,4 +316,32 @@
 .submit-order-btn:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+/* --- Estilos para la página de Éxito del Checkout --- */
+
+.checkout-success {
+    text-align: center;
+}
+
+.checkout-success p {
+    font-size: 1.1rem;
+    color: var(--color-secondary);
+    margin-bottom: 25px;
+}
+
+.order-details {
+    background-color: #f8f9fa;
+    border: 1px dashed var(--color-primary);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 500px;
+}
+
+.order-details p {
+    font-size: 1.2rem;
+    color: var(--color-text);
+    margin: 10px 0;
+    font-weight: 500;
 }
